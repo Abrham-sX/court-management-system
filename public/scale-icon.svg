@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="120" height="120">
+  <style>
+    .stroke {
+      fill: none;
+      stroke: #5D4037;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Beam + pans group */
+    .balance {
+      transform-origin: 12px 6px;
+      animation: swing 2s ease-in-out infinite;
+    }
+
+    /* Loading swing animation */
+    @keyframes swing {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(4deg); }
+      50% { transform: rotate(0deg); }
+      75% { transform: rotate(-4deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Hover effect (stronger tilt) */
+    svg:hover .balance {
+      animation: hoverTilt 0.6s ease forwards;
+    }
+
+    @keyframes hoverTilt {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(8deg); }
+    }
+
+    /* Pan bounce effect */
+    .pan {
+      transform-origin: center;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(0.8px); }
+    }
+  </style>
+
+  <!-- Top ring -->
+  <circle class="stroke" cx="12" cy="2.5" r="1.5" />
+
+  <!-- Stand -->
+  <line class="stroke" x1="12" y1="4" x2="12" y2="19" />
+  <path class="stroke" d="M8 22 L16 22" />
+
+  <!-- Balance group -->
+  <g class="balance">
+    <!-- Beam -->
+    <line class="stroke" x1="4" y1="6" x2="20" y2="6" />
+
+    <!-- Center support -->
+    <line class="stroke" x1="12" y1="6" x2="12" y2="4" />
+
+    <!-- Left string -->
+    <line class="stroke" x1="7" y1="6" x2="7" y2="11" />
+
+    <!-- Right string -->
+    <line class="stroke" x1="17" y1="6" x2="17" y2="11" />
+
+    <!-- Left pan -->
+    <path class="stroke pan" d="M5 11 Q7 14 9 11 Z" />
+
+    <!-- Right pan -->
+    <path class="stroke pan" d="M15 11 Q17 14 19 11 Z" />
+  </g>
+</svg>
