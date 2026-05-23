@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { CameraIcon, XMarkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../i18n';
 
 interface QrCodeScannerProps {
   onScanSuccess: (decodedText: string) => void;
@@ -8,6 +9,7 @@ interface QrCodeScannerProps {
 }
 
 export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'camera' | 'upload'>('camera');
   const [error, setError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -32,7 +34,7 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
       );
     } catch (err: any) {
       console.error("Camera failed to start", err);
-      setError("Camera permission denied or camera not found.");
+      setError(t('cameraPermissionDenied') || 'Camera permission denied or camera not found.');
     }
   };
 
@@ -82,7 +84,7 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
       }
     } catch (err) {
       console.error("Failed to decode QR code from file", err);
-      setUploadError("Could not find a valid QR code in this image.");
+      setUploadError(t('invalidQrImage') || 'Could not find a valid QR code in this image.');
     }
   };
 
@@ -99,13 +101,15 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
         <button 
           onClick={handleClose} 
           className="absolute top-6 right-6 p-2 hover:bg-[var(--app-panel-soft)] rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+          aria-label={t('close') || 'Close'}
         >
           <XMarkIcon className="h-5 w-5" />
         </button>
 
         {/* Title */}
         <h3 className="text-xl font-black mb-6 flex items-center gap-2 self-start">
-          <CameraIcon className="h-6 w-6 text-[var(--app-accent)]" /> Track Case QR Code
+          <CameraIcon className="h-6 w-6 text-[var(--app-accent)]" /> 
+          {t('scanQrCodeTitle') || 'Scan Case QR Code'}
         </h3>
 
         {/* Tab Controls */}
@@ -118,7 +122,7 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
                 : 'text-[var(--app-muted)] hover:opacity-80'
             }`}
           >
-            Camera Scanner
+            {t('cameraScanner') || 'Camera Scanner'}
           </button>
           <button
             onClick={() => setActiveTab('upload')}
@@ -128,18 +132,18 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
                 : 'text-[var(--app-muted)] hover:opacity-80'
             }`}
           >
-            Upload QR Image
+            {t('uploadQrImage') || 'Upload QR Image'}
           </button>
         </div>
 
-        {/* Camera Container (Always kept in DOM to support constructor and file decoding, but hidden if not in camera tab or has camera error) */}
+        {/* Camera Container */}
         <div className={`w-full flex flex-col items-center ${activeTab === 'camera' && !error ? '' : 'hidden'}`}>
           <div 
             id={elementId} 
             className="w-full aspect-square max-w-[280px] overflow-hidden rounded-[24px] border border-[var(--app-border)] bg-black shadow-inner"
           />
           <p className="text-xs text-[var(--app-muted)] mt-5 text-center font-medium">
-            Point your camera at a case's QR code to scan and track.
+            {t('cameraInstruction') || 'Point your camera at a case QR code to scan and track.'}
           </p>
         </div>
 
@@ -148,7 +152,7 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
           <div className="text-center py-6 w-full">
             <p className="text-rose-500 font-semibold mb-6 text-sm">{error}</p>
             <button onClick={() => setActiveTab('upload')} className="app-btn-primary w-full">
-              Try Uploading Instead
+              {t('tryUploadInstead') || 'Try Uploading Instead'}
             </button>
           </div>
         )}
@@ -161,8 +165,8 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
                 <div className="p-4 rounded-full bg-[var(--app-accent-soft)] mb-3 group-hover:scale-110 transition-transform">
                    <ArrowUpTrayIcon className="h-8 w-8 text-[var(--app-accent)]" />
                 </div>
-                <p className="text-sm font-bold text-[var(--app-text)]">{t("chooseQrImage")}</p>
-                <p className="text-xs text-[var(--app-muted)] mt-1">{t("pngJpgFile")}</p>
+                <p className="text-sm font-bold text-[var(--app-text)]">{t('chooseQrImage') || 'Choose QR image'}</p>
+                <p className="text-xs text-[var(--app-muted)] mt-1">{t('pngJpgFile') || 'PNG, JPG, or JPEG file'}</p>
               </div>
               <input 
                 type="file" 
@@ -178,7 +182,7 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
               </p>
             ) : (
               <p className="text-xs text-[var(--app-muted)] mt-5 text-center font-medium">
-                Upload a screenshot or image of the case QR code to decode.
+                {t('uploadInstruction') || 'Upload a screenshot or image of the case QR code to decode.'}
               </p>
             )}
           </div>
@@ -188,7 +192,7 @@ export const QrCodeScanner = ({ onScanSuccess, onClose }: QrCodeScannerProps) =>
           onClick={handleClose}
           className="mt-8 w-full app-btn-secondary flex items-center justify-center gap-2 py-3"
         >
-          Cancel
+          {t('cancel') || 'Cancel'}
         </button>
       </div>
     </div>
