@@ -76,11 +76,9 @@ export const DashboardLayout = () => {
   const navItems = [...baseNav, ...roleNav()];
 
   return (
-    <div className="dashboard-layout flex min-h-screen relative">
-      <div className="hidden md:block w-[88px] shrink-0" />
-
+    <div className="dashboard-layout flex min-h-screen">
       <aside
-        className="group hidden w-[88px] hover:w-72 flex-col bg-[image:var(--app-sidebar-bg)] shadow-2xl md:flex transition-[width] duration-300 ease-in-out z-50 fixed inset-y-0 left-0 overflow-hidden"
+        className="group flex w-[88px] hover:w-72 flex-col bg-[image:var(--app-sidebar-bg)] shadow-2xl transition-[width] duration-300 ease-in-out z-50 sticky top-0 h-screen overflow-hidden shrink-0"
         style={{ color: 'var(--app-text)' }}
       >
         <div className="px-4 pt-6 pb-4">

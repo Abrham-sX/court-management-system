@@ -4,8 +4,12 @@
 
 @layer base {
   :root {
+    --app-font-size-factor: 1;
+    --app-zoom-factor: 1;
     --app-font-sans: 'Inter', system-ui, sans-serif;
     --app-font-display: 'Outfit', sans-serif;
+
+    /* Light Mode - Premium Sand/Earth Palette */
 
     /* Light Mode - Premium Sand/Earth Palette */
     --app-bg: #fdfaf5;
@@ -116,6 +120,24 @@
     --app-accent-hover: #e11d48;
     --app-accent-soft: rgba(244, 63, 94, 0.1);
     --app-sidebar-bg: linear-gradient(180deg, #9f1239 0%, #3b0b17 100%);
+  }
+
+  /* Accessibility typography & UI Zoomability scaling rules */
+  html {
+    font-size: calc(16px * var(--app-font-size-factor, 1) * var(--app-zoom-factor, 1)) !important;
+  }
+
+  html[data-font-style='sans'] {
+    --app-font-sans: 'Inter', system-ui, sans-serif;
+  }
+  html[data-font-style='serif'] {
+    --app-font-sans: 'Georgia', 'Merriweather', 'Lora', serif;
+  }
+  html[data-font-style='mono'] {
+    --app-font-sans: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+  }
+  html[data-font-style='display'] {
+    --app-font-sans: 'Outfit', sans-serif;
   }
 }
 

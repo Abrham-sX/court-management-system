@@ -63,6 +63,8 @@ interface CaseDetail {
   Complaints?: Complaint[];
 }
 
+const CASE_STATUS_OPTIONS = ['Registered', 'Reviewing', 'Ongoing', 'Scheduled', 'Adjourned', 'Closed', 'Dismissed'] as const;
+
 // Fetch case by number or id for the judge
 const fetchCaseDetail = async (caseNumberOrId: string): Promise<CaseDetail> => {
   const { data } = await apiClient.get(`/judgments/case-detail/${caseNumberOrId}`);
@@ -100,6 +102,7 @@ export const JudgeCaseDetail = () => {
   const [success, setSuccess] = useState('');
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [rescheduleId, setRescheduleId] = useState<number | null>(null);
+  const [statusDraft, setStatusDraft] = useState('');
   const queryClient = useQueryClient();
 
   const { register, handleSubmit, reset } = useForm<JudgmentFormData>();
@@ -126,6 +129,21 @@ export const JudgeCaseDetail = () => {
     },
     onError: (err: AxiosError<{ message?: string }>) =>
       setError(err.response?.data?.message || t('saveFailed') || 'Failed to save judgment'),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: async (status: string) => {
+      if (!caseData) throw new Error('No case');
+      const { data } = await apiClient.patch(`/judge/cases/${caseData.case_id}/status`, { status });
+      return data;
+    },
+    onSuccess: () => {
+      setSuccess(t('statusUpdatedSuccess') || 'Case status updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['judgeCaseDetail', caseIdentifier] });
+      queryClient.invalidateQueries({ queryKey: ['judgeCases'] });
+    },
+    onError: (err: AxiosError<{ message?: string }>) =>
+      setError(err.response?.data?.message || t('statusUpdateFailed') || 'Failed to update status'),
   });
 
   // Schedule hearing mutation
@@ -220,6 +238,12 @@ export const JudgeCaseDetail = () => {
     }
   }, [caseData, reset]);
 
+  useEffect(() => {
+    if (caseData?.status) {
+      setStatusDraft(caseData.status);
+    }
+  }, [caseData?.status]);
+
   const previewFile = async (doc: Document) => {
     try {
       const response = await apiClient.get(`/documents/${doc.document_id}/download`, {
@@ -278,6 +302,23 @@ export const JudgeCaseDetail = () => {
 
       {caseData && (
         <>
+          <div className="app-card">
+            <div className="flex flex-wrap gap-2 mb-4">
+              <a
+                href="#evidence-section"
+                className="app-link text-sm font-bold"
+              >
+                {t('viewEvidence') || 'View Evidence'}
+              </a>
+              <a
+                href="#complaints-section"
+                className="app-link text-sm font-bold"
+              >
+                {t('viewComplaints') || 'View Complaints'}
+              </a>
+            </div>
+          </div>
+
           {/* Case Info Card */}
           <div className="app-card">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -296,7 +337,32 @@ export const JudgeCaseDetail = () => {
                   </div>
                   <div>
                     <p className="app-muted text-sm">{t('status') || 'Status'}</p>
-                    <span className="app-badge-neutral capitalize">{caseData.status}</span>
+                    <div className="flex flex-col gap-2">
+                      <span className="app-badge-neutral capitalize">{caseData.status}</span>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <select
+                          value={statusDraft}
+                          onChange={(e) => setStatusDraft(e.target.value)}
+                          className="app-select min-w-0"
+                        >
+                          {CASE_STATUS_OPTIONS.map((status) => (
+                            <option key={status} value={status}>
+                              {t(`status_${status.toLowerCase()}`) || status}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => statusMutation.mutate(statusDraft)}
+                          disabled={statusMutation.isPending || statusDraft === caseData.status}
+                          className="app-btn-primary whitespace-nowrap"
+                        >
+                          {statusMutation.isPending
+                            ? (t('saving') || 'Saving...')
+                            : (t('updateStatus') || 'Update Status')}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -337,9 +403,9 @@ export const JudgeCaseDetail = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Evidence List */}
-            <div className="app-card">
-              <div className="flex items-center gap-2 mb-4">
-                <DocumentTextIcon className="h-5 w-5" style={{ color: 'var(--color-primary)' }} />
+          <div className="app-card" id="evidence-section">
+            <div className="flex items-center gap-2 mb-4">
+              <DocumentTextIcon className="h-5 w-5" style={{ color: 'var(--color-primary)' }} />
                 <h3 className="app-heading text-lg font-semibold">
                   {t('evidence') || 'Evidence'}
                 </h3>
@@ -397,9 +463,9 @@ export const JudgeCaseDetail = () => {
             </div>
 
             {/* Complaints Filed */}
-            <div className="app-card">
-              <div className="flex items-center gap-2 mb-4">
-                <ChatBubbleLeftEllipsisIcon className="h-5 w-5 text-amber-500" />
+          <div className="app-card" id="complaints-section">
+            <div className="flex items-center gap-2 mb-4">
+              <ChatBubbleLeftEllipsisIcon className="h-5 w-5 text-amber-500" />
                 <h3 className="app-heading text-lg font-semibold">
                   {t('complaints') || 'Complaints'}
                 </h3>
